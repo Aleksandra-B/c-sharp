@@ -25,3 +25,19 @@ public static void Main()
         number += 7;
         Console.WriteLine(number);
     }
+#Минимум функции
+private static void WriteParabolaMinX(int a, int b, int c)
+{
+	var ans = a != 0 ? (-b/(2*(double)a)).ToString() : "Impossible";
+	Console.WriteLine(ans);
+}
+
+#Горячие клавиши отладки
+Шаг с заходом внутрь метода (Step Into)
+F11
+Запуск программы под отладчиком / продолжение после точки останова
+F5
+Выполнение инструкций вплоть до выхода из текущего метода. (Step Out)
+Shift+F11
+Шаг без захода внутрь метода (Step Over)
+F10
