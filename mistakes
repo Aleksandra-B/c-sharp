@@ -109,3 +109,68 @@ GetString(string s)
 Плохо написанный код сложно понять даже автору через некоторое время--
 Качественный код облегчает совместную работу в команде--
 Качественный код проще изменять и развивать--
+
+
+#Сделай то, не знаю что
+public static string Decode (string a)
+	{
+	var b = int.Parse(a.Replace(".",""))%1024;
+		return b.ToString();
+	}
+	
+#Практика «Angry Birds»
+using System;
+
+namespace AngryBirds
+{
+        public static class AngryBirdsTask
+	{
+		
+		public static double FindSightAngle(double v, double distance)
+		{
+			       
+            double g = 9.8;
+            
+            return 0.5 * Math.Asin(distance * g / Math.Pow(v,2));
+		}
+	}
+}
+	
+#Практика «Бильярд»		
+using System;
+
+namespace Billiards
+{
+	public static class BilliardsTask
+	{
+	public static double BounceWall(double directionRadians, double wallInclinationRadians)
+		{
+    wallInclinationRadians += 90;
+    directionRadians += 180;
+    
+    double diff = wallInclinationRadians - directionRadians;
+    double res = directionRadians + 2 * diff + 360 * 5;
+ 
+    res %= 360;
+    if (res > 180)
+    {
+        res -= 360;
+    }
+    
+    return res;
+}
+	}
+}
+
+#Практика «Проценты»
+public static double Calculate(string userInput)
+        {
+            string[] values = userInput.Split(' ');
+            
+            var sum = double.Parse(values[0]);
+            var rank = double.Parse(values[1]);
+            var deposit = double.Parse(values[2]);
+
+            return (sum * (Math.Pow(1 + rank / 1200, deposit)));
+        }	
+	
