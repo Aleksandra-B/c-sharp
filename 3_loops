@@ -1,3 +1,41 @@
+#В поисках степени двойки
+
+private static int GetMinPowerOfTwoLargerThan(int number)
+        { 
+            int result = 1;
+            while (result <= number)
+            {
+                result *= 2;
+            }
+            return result;
+        }
+        
+#Убрать пробелы   
+
+public static string RemoveStartSpaces(string text)
+{
+    while (text.Length > 0 && char.IsWhiteSpace(text[0]))
+{
+    text = text.Remove(0, 1);
+}
+    return text;
+}
+
+#Рамочка
+#Напишите функцию, которая принимает на вход строку текста и печатает ее на экран в рамочке из символов +, - и |.
+
+private static void WriteTextWithBorder(string text)
+{
+            string border = "+";
+            string line = "| "+text+" |";
+            for (int i = 0; i < text.Length+2; i++)
+                border += ('-');
+            border += '+';
+            Console.WriteLine(border);
+            Console.WriteLine(line);
+            Console.WriteLine(border);
+}
+
 #Практика "Пустой лабиринт"
 namespace Mazes
 {
@@ -21,6 +59,138 @@ namespace Mazes
         {
             MakeHorizontalMove(robot, width, Direction.Right);
             MakeVerticalMove(robot, height, Direction.Down);
+        }
+    }
+}
+
+#Практика "Лабиринт змейка"
+namespace Mazes
+{
+    public static class SnakeMazeTask
+    {
+        // Horizontal shift
+        public static void MakeHorizontalMove(Robot robot, int width, Direction dir)
+        {
+            for (int i = 0; i < width - 3; ++i)
+                robot.MoveTo(dir);
+        }
+
+        // Vertical shift
+        public static void MakeVerticalMove(Robot robot, int height, Direction dir)
+        {
+            for (int i = 0; i < height - 3; ++i)
+                robot.MoveTo(dir);
+        }
+
+        // Make a "snake curve"
+        public static void MakeCurve(Robot robot, int width, int height)
+        {
+            MakeHorizontalMove(robot, width, Direction.Right);
+            robot.MoveTo(Direction.Down);
+            robot.MoveTo(Direction.Down);
+            MakeHorizontalMove(robot, width, Direction.Left);
+        }
+
+        public static void MoveOut(Robot robot, int width, int height)
+        {
+            var len = height > 5 ? height / 4 : 1;
+            for (int i = 0; i < len;)
+            {
+                MakeCurve(robot, width, height);
+                if (++i != len)
+                {
+                    robot.MoveTo(Direction.Down);
+                    robot.MoveTo(Direction.Down);
+                }  
+            }
+        }
+    }
+}
+
+#Практика "Лабиринт диагональ"
+
+namespace Mazes
+{
+    public static class DiagonalMazeTask
+    {
+        public static void MakeHorizontalMove(Robot robot, int width, Direction dir)
+        {
+            for (int k = 0; k < width; ++k)
+                robot.MoveTo(dir);
+        }
+        public static void MakeVerticalMove(Robot robot, int height, Direction dir)
+        {
+            for (int k = 0; k < height; ++k)
+                robot.MoveTo(dir);
+        }
+
+        public static void GoRightDown(Robot robot, int width, int height)
+        {
+            for (int k = 0;k < height - 2; ++k)
+            {
+                MakeVerticalMove(robot, width / (height - 1), Direction.Right);
+                if (k != (height - 3))
+                    MakeHorizontalMove(robot, 1, Direction.Down);
+            }
+        }
+        public static void GoDownRight(Robot robot, int width, int height)
+        {
+            for (int k = 0; k < width - 2; ++k)
+            {
+                MakeVerticalMove(robot, (height - 3) / (width - 2), Direction.Down);
+                if (k != (width - 3))
+                    MakeHorizontalMove(robot, 1, Direction.Right);
+            }
+        }
+        public static void MoveOut(Robot robot, int width, int height)
+        {
+            if (width > height)
+                GoRightDown(robot, width, height);
+            else
+                GoDownRight(robot, width, height);
+        }
+    }
+}
+
+#Практика "Dragon curve"
+
+using System;
+using System.Drawing;
+
+namespace Fractals
+{
+    internal static class DragonFractalTask
+    {
+        public static double GetXCoord(double x, double y, double angle)
+        {
+            return (x * Math.Cos(angle) - y * Math.Sin(angle)) / Math.Sqrt(2);
+        }
+
+        public static double GetYCoord(double x, double y, double angle)
+        {
+            return (x * Math.Sin(angle) + y * Math.Cos(angle)) / Math.Sqrt(2);
+        }
+        public static void DrawDragonFractal(Pixels pixels, int iterationsCount, int seed)
+        {
+            var x = 1.0;
+            var y = 0.0;
+            var randomNumber = new Random(seed);
+
+            for (int i = 0; i < iterationsCount; ++i)
+            {
+                var oldX = x;
+                if (randomNumber.Next(2) == 0)
+                {
+                    x = GetXCoord(x, y, Math.PI / 4);
+                    y = GetYCoord(oldX, y, Math.PI / 4);
+                }
+                else
+                {
+                    x = GetXCoord(x, y, Math.PI * 3 / 4) + 1;
+                    y = GetYCoord(oldX, y, Math.PI * 3 / 4);
+                }
+                pixels.SetPixel(x, y);
+            }
         }
     }
 }
