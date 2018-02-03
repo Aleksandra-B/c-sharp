@@ -1,0 +1,256 @@
+#Полезные знакомства
+private static Dictionary<string, List<string>> OptimizeContacts(List<string> contacts)
+{
+    var dictionary = new Dictionary<string, List<string>>();
+    foreach(var c in contacts)
+    {
+        var key = string.Concat(c.Split(new char[]{':'})[0].Take(2));
+        if(!dictionary.ContainsKey(key)) dictionary.Add(key,contacts.Where(x=>x.StartsWith(key)).ToList());
+    }
+    return dictionary;
+}
+
+
+
+#Практика "Анализ текста"
+
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
+
+namespace TextAnalysis
+{
+    static class SentencesParserTask
+    {
+        public static readonly string[] StopWords =
+        {
+            "the", "and", "to", "a", "of", "in", "on", "at", "that",
+            "as", "but", "with", "out", "for", "up", "one", "from", "into"
+        };
+
+        public static readonly char[] EndOfSentenceChars =
+        {
+            '.', '!', '?', ';', ':', '(', ')'
+        };
+        public static List<List<string>> ParseSentences(string text)
+        {
+            var resultText = new List<List<string>>();
+            var sentence = new List<string>();
+            var word = new StringBuilder();
+            foreach (var c in text)
+            {
+                if (CharIsLetterOrApostrophe(c))
+                {
+                    AddCharToWord(c, word);
+                }
+                else if (((CharIsWordsSeparator(c) && !CharIsEndOfSentence(c)) ||
+                    CharIsEndOfSentence(c)) && WordIsNotEmpty(word))
+                {
+                    if (WordIsNotStopWord(word))
+                        AddWordToSentence(word, sentence);
+                    word.Clear();
+                }
+                if (CharIsEndOfSentence(c) && SentenceIsNotEmpty(sentence))
+                {
+                    AddSentenceToText(sentence, resultText);
+                    sentence.Clear();
+                }
+            }
+            if (WordIsNotEmpty(word))
+                if (WordIsNotStopWord(word))
+                    AddWordToSentence(word, sentence);
+            if (SentenceIsNotEmpty(sentence))
+                AddSentenceToText(sentence, resultText);
+            return resultText;
+        }
+        public static bool CharIsLetterOrApostrophe(char c)
+        {
+            return (char.IsLetter(c) || c == '\'');
+        }
+
+        public static void AddCharToWord(char c, StringBuilder word)
+        {
+            word.Append(char.ToLower(c));
+        }
+
+        public static bool CharIsWordsSeparator(char c)
+        {
+            return (char.IsPunctuation(c) || char.IsWhiteSpace(c) || char.IsControl(c) ||
+                char.IsSymbol(c) || char.IsDigit(c));
+        }
+
+        public static bool CharIsEndOfSentence(char c)
+        {
+            return EndOfSentenceChars.Contains(c);
+        }
+
+        public static bool WordIsNotEmpty(StringBuilder word)
+        {
+            return word.Length > 0;
+        }
+
+        public static bool WordIsNotStopWord(StringBuilder word)
+        {
+            return !StopWords.Contains(word.ToString());
+        }
+
+        public static void AddWordToSentence(StringBuilder word, List<string> sentence)
+        {
+            sentence.Add(word.ToString());
+        }
+
+        public static bool SentenceIsNotEmpty(List<string> sentence)
+        {
+            return sentence.Count > 0;
+        }
+
+        public static void AddSentenceToText(List<string> sentence, List<List<string>> text)
+        {
+            text.Add(new List<string>(sentence));
+        }
+    }
+}
+
+#Практика "Частотность биграмм"
+
+using System.Collections.Generic;
+
+namespace TextAnalysis
+{
+    static class FrequencyAnalysisTask
+    {
+        public static Dictionary<string, string> GetMostFrequentNextWords(List<List<string>> text)
+        {
+            var mostFrequentBigrams = new Dictionary<string, string>();
+            var rawBigrams = GetRawBigrams(text);
+
+            foreach (var word in rawBigrams)
+            {
+                var mostFrequentNextWord = GetMostFrequentNextWord(word.Value);
+                mostFrequentBigrams.Add(word.Key, mostFrequentNextWord);
+            }
+
+            return mostFrequentBigrams;
+        }
+
+        public static Dictionary<string, Dictionary<string, int>> GetRawBigrams(List<List<string>> text)
+        {
+            var bigrams = new Dictionary<string, Dictionary<string, int>>();
+
+            foreach (var sentence in text)
+            {
+                for (var i = 0; i < sentence.Count - 1; i++)
+                {
+                    var word = sentence[i];
+                    var nextWord = sentence[i + 1];
+
+                    if (!bigrams.ContainsKey(word))
+                        bigrams.Add(word, new Dictionary<string, int>());
+
+                    if (!bigrams[word].ContainsKey(nextWord))
+                        bigrams[word].Add(nextWord, 1);
+                    else
+                        bigrams[word][nextWord] += 1;
+                }
+            }
+
+            return bigrams;
+        }
+
+        public static string GetMostFrequentNextWord(Dictionary<string, int> dictionary)
+        {
+            var maxNextWordFreq = int.MinValue;
+            var mostFrequentNextWord = "";
+
+            foreach (var nextWord in dictionary)
+            {
+                var nextWordFreq = nextWord.Value;
+
+                if (maxNextWordFreq < nextWordFreq)
+                {
+                    maxNextWordFreq = nextWordFreq;
+                    mostFrequentNextWord = nextWord.Key;
+                }
+                else if (maxNextWordFreq == nextWordFreq)
+                    mostFrequentNextWord = GetLexicographicallyFirstWord(mostFrequentNextWord,
+                                                                         nextWord.Key);
+            }
+
+            return mostFrequentNextWord;
+        }
+
+        public static Dictionary<string, string> GetMostFrequentTrigrams(List<List<string>> text)
+        {
+            var mostFrequentTrigrams = new Dictionary<string, string>();
+            var rawTrigrams = GetRawTrigrams(text);
+
+            foreach (var word in rawTrigrams)
+            {
+                var mostFrequentNextWord = GetMostFrequentNextWord(word.Value);
+                mostFrequentTrigrams.Add(word.Key, mostFrequentNextWord);
+            }
+
+            return mostFrequentTrigrams;
+        }
+
+        public static Dictionary<string, Dictionary<string, int>> GetRawTrigrams(List<List<string>> text)
+        {
+            var trigrams = new Dictionary<string, Dictionary<string, int>>();
+
+            foreach (var sentence in text)
+            {
+                for (var i = 0; i < sentence.Count - 2; i++)
+                {
+                    var bigram = sentence[i] + " " + sentence[i + 1];
+                    var nextWord = sentence[i + 2];
+
+                    if (!trigrams.ContainsKey(bigram))
+                        trigrams.Add(bigram, new Dictionary<string, int>());
+
+                    if (!trigrams[bigram].ContainsKey(nextWord))
+                        trigrams[bigram].Add(nextWord, 1);
+                    else
+                        trigrams[bigram][nextWord] += 1;
+                }
+            }
+
+            return trigrams;
+        }
+
+        public static string GetLexicographicallyFirstWord(string word1, string word2)
+        {
+            return string.CompareOrdinal(word1, word2) < 0 ? word1 : word2;
+        }
+    }
+}
+
+#Практика "Биграммы"
+
+using System.Collections.Generic;
+using System.Text;
+
+namespace TextAnalysis
+{
+	static class BigramGeneratorTask
+	{
+		public static string ContinuePhraseWithBigramms(
+			Dictionary<string, string> mostFrequentNextWords, 
+			string phraseBeginning, 
+			int phraseWordsCount)
+		{
+            var finalPhrase = new StringBuilder(phraseBeginning);
+            var word = phraseBeginning;
+
+            for (var i = 1; i < phraseWordsCount; i++)
+            { 
+                if (!mostFrequentNextWords.ContainsKey(word))
+                    break;
+
+                word = mostFrequentNextWords[word];
+                finalPhrase.Append(" " + word);
+            }
+
+			return finalPhrase.ToString();
+		}
+	}
+}
