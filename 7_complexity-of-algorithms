@@ -1,0 +1,144 @@
+#Практика "Оттенки серого"
+namespace Recognizer
+{
+	public static class GrayscaleTask
+	{
+        const double Red = 0.299;
+        const double Green = 0.587;
+        const double Blue = 0.114;
+
+        public static double[,] ToGrayscale(Pixel[,] original)
+		{
+            var width = original.GetLength(0);
+            var height = original.GetLength(1);
+            var grayscale = new double[width, height];
+
+            for (var x = 0; x < width; x++)
+            {
+                for (var y = 0; y < height; y++)
+                    grayscale[x, y] =
+                        (Red * original[x, y].R +
+                        Green * original[x, y].G +
+                        Blue * original[x, y].B) / 255;
+            }
+
+			return grayscale;
+		}
+	}
+}
+
+
+#Практика "Пороговый фильтр"
+
+using System.Collections.Generic;
+
+namespace Recognizer
+{
+    public static class ThresholdFilterTask
+    {
+        public static double[,] ThresholdFilter(double[,] original, double threshold)
+        {
+            var width = original.GetLength(0);
+            var height = original.GetLength(1);
+            var filteredPixels = new double[width, height];
+
+            var thresholdValue = CalculateThresholdValue(original, threshold);
+
+            for (var x = 0; x < width; x++)
+                for (var y = 0; y < height; y++)
+                    filteredPixels[x, y] = (original[x, y] >= thresholdValue) ? 1.0 : 0.0;
+
+            return filteredPixels;
+        }
+
+        private static double CalculateThresholdValue(double[,] original, double threshold)
+        {
+            var width = original.GetLength(0);
+            var height = original.GetLength(1);
+            var numberOfPixels = width * height;
+            var pixels = new List<double>(width * height);
+
+            var pixelsToChange = (int)(numberOfPixels * threshold);
+
+            for (var x = 0; x < width; x++)
+                for (var y = 0; y < height; y++)
+                    pixels.Add(original[x, y]);
+
+            pixels.Sort();
+
+            return GetThresholdValue(pixels, numberOfPixels, pixelsToChange);
+        }
+
+        private static double GetThresholdValue(List<double> pixels, int numberOfPixels, int pixelsToChange)
+        {
+            if (pixelsToChange == numberOfPixels)
+                return -1.0;
+            else if (pixelsToChange == 0)
+                return double.MaxValue;
+            else
+                return pixels[numberOfPixels - pixelsToChange];
+        }
+    }
+}
+
+
+#Практика "Фильтр Собеля"
+
+using System;
+
+namespace Recognizer
+{
+    internal static class SobelFilterTask
+    {
+        public static double[,] SobelFilter(double[,] original, double[,] sx)
+        {
+            var width = original.GetLength(0);
+            var height = original.GetLength(1);
+            var filteredPixels = new double[width, height];
+
+            var offsetX = sx.GetLength(0) / 2;
+            var offsetY = sx.GetLength(1) / 2;
+
+            var sy = GetTransposedMatrix(sx);
+
+            for (var x = offsetX; x < width - offsetX; x++)
+            {
+                for (var y = offsetY; y < height - offsetY; y++)
+                {
+                    var gx = GetConvolution(original, sx, x, y, offsetX);
+                    var gy = GetConvolution(original, sy, x, y, offsetY);
+
+                    filteredPixels[x, y] = Math.Sqrt(gx * gx + gy * gy);
+                }
+            }
+
+            return filteredPixels;
+        }
+
+        private static double[,] GetTransposedMatrix(double[,] matrix)
+        {
+            var width = matrix.GetLength(0);
+            var height = matrix.GetLength(1);
+            var transposedMatrix = new double[width, height];
+
+            for (var x = 0; x < width; x++)
+                for (var y = 0; y < height; y++)
+                    transposedMatrix[x, y] = matrix[y, x];
+
+            return transposedMatrix;
+        }
+
+        private static double GetConvolution(double[,] original, double[,] s, int x, int y, int offset)
+        {
+            var width = s.GetLength(0);
+            var height = s.GetLength(1);
+            var result = 0.0;
+
+            for (var sx = 0; sx < width; sx++)
+                for (var sy = 0; sy < height; sy++)
+                    result += s[sx, sy] * original[x + sx - offset, y + sy - offset];
+
+            return result;
+        }
+    }
+}
