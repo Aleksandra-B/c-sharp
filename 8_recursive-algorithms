@@ -1,0 +1,88 @@
+#Практика "Перебор паролей 2"
+
+public class CaseAlternatorTask
+{
+	public static List<string> AlternateCharCases(string lowercaseWord)
+	{
+		var result = new List<string>();
+		AlternateCharCases(lowercaseWord.ToCharArray(), 0, result);
+		return result;
+	}
+
+	static void AlternateCharCases(char[] word, int startIndex, List<string> result)
+	{
+		if (startIndex < word.Length)
+		{
+			if (char.IsLetter(word[startIndex]))
+			{
+				word[startIndex] = char.ToLower(word[startIndex]);
+				AlternateCharCases(word, startIndex + 1, result);
+
+				word[startIndex] = char.ToUpper(word[startIndex]);
+				AlternateCharCases(word, startIndex + 1, result);
+			}
+			else
+			{
+				AlternateCharCases(word, startIndex + 1, result);
+			}
+		}
+
+		var nextWord = new string(word);
+
+		if (!result.Contains(nextWord))
+		{
+			result.Add(nextWord);
+		}
+	}
+}	
+
+#Практика "Хождение по чекпоинтам"
+
+using System;
+using System.Drawing;
+
+namespace RoutePlanning
+{
+    public static class PathFinderTask
+    {
+        public static int[] FindBestCheckpointsOrder(Point[] checkpoints)
+        {
+            var numberOfCheckpoints = checkpoints.Length;
+            var shortestPath = new int[numberOfCheckpoints];
+            var path = new int[numberOfCheckpoints];
+            var shortestDistance = double.PositiveInfinity;
+
+            MakePathPermutations(checkpoints, shortestPath, path, 1, shortestDistance);
+
+            return shortestPath;
+        }
+
+        private static double MakePathPermutations(Point[] checkpoints, int[] shortestPath,
+            int[] path, int position, double shortestDistance)
+        {
+            var numberOfCheckpoints = checkpoints.Length;
+            var distance = checkpoints.GetPathLength(path);
+
+            if (position == path.Length && distance < shortestDistance)
+            {
+                shortestDistance = distance;
+                Array.Copy(path, shortestPath, numberOfCheckpoints);
+                return shortestDistance;
+            }
+
+            for (var i = 0; i < numberOfCheckpoints; i++)
+            {
+                var index = Array.IndexOf(path, i, 0, position);
+
+                if (index == -1)
+                {
+                    path[position] = i;
+                    shortestDistance = MakePathPermutations(checkpoints, shortestPath, path,
+                        position + 1, shortestDistance);
+                }
+            }
+
+            return shortestDistance;
+        }
+    }
+}
