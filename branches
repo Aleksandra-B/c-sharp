@@ -1,0 +1,118 @@
+#Високосный год
+
+public static bool IsLeapYear(int year)
+{
+	return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
+}
+
+#Среднее трех
+public static int MiddleOf(int a, int b, int c)
+        {
+            if (a < b)
+            {
+                if (b < c)
+                {
+                    return b;
+                }
+                else if (a > c)
+                {
+                    return a;
+                }
+                else return c;
+            }
+            else if (a > b)
+            {
+                if (a < c)
+                {
+                    return a;
+                }
+                else if(b > c)
+                {
+                    return b;
+                }
+                else return c;
+            }
+            else return a;
+        }
+        
+#Ход ферзя
+
+public static bool IsCorrectMove(string from, string to)
+{
+	var dx = Math.Abs(to[0] - from[0]); 
+	var dy = Math.Abs(to[1] - from[1]);
+	if ((dx>0)&&(dy>0)&&(dx == dy))
+		return true;
+	else if (((dx == 0)&&(dy > 0))||((dy == 0)&&(dx>0)))
+	return true;
+		
+	else
+	return false;
+	
+}       
+
+
+1. Что может стоять на месте [Нечто]? Отметьте все верные утверждения. 1 балл
+Сравнение чисел или строк--
+Любое выражение
+Любое выражение типа bool--
+Вызов метода, возвращающего bool--
+Переменная, поле или свойство класса типа bool--
+Выражение типа int
+Выражение типа string
+
+1
+if (!IsNotPrimeNumber(p)) Console.WriteLine(p);
+2. Что не так в этом коде? 1 балл
+IsNotPrimeNumber слишком длинное название
+Лучше написать `if (IsNotPrimeNumber(p) == false) ...`
+Лучше вместо метода IsNotPrimeNumber написать метод IsPrimeNumber, тогда не будет двойного отрицания в условии--
+
+3. Что же тут смешного? Отметьте все верные утверждения про этот код 1 балл
+Выражение в последней ветви всегда равно false--
+Если заменить выражение в последней ветви на true, то ничего не изменится--
+Последняя ветвь никогда не выполняется--
+Второй if можно заменить на `return false`--
+Весь этот код можно заменить на `return a`--
+
+#Управление роботом
+
+static bool ShouldFire2(bool enemyInFront, string enemyName, int robotHealth)
+{
+ return ((enemyInFront == true) && (enemyName == "boss") && (robotHealth >= 50))||      ((enemyInFront == true) && (enemyName != "boss"));
+}
+
+
+#Практика "Рубль -лей -ля"
+namespace Pluralize
+{
+    public static class PluralizeTask
+    {
+        public static string PluralizeRubles(int count)
+        {
+            if (count < 10 || count > 20 && count < 100)
+            {
+                int rem = count % 10;
+                return (rem > 1 && rem < 5) ? "рубля" : ((rem > 4 || rem == 0) ? "рублей" : "рубль");
+            }
+            else
+            {
+                while (true)
+                {
+                    count %= 100;
+                    if (count < 100) break;
+                }
+
+                if (count < 10 || count > 20 && count < 100)
+                {
+                    int rem = count % 10;
+                    return (rem > 1 && rem < 5) ? "рубля" : ((rem > 4 || rem == 0) ? "рублей" : "рубль");
+                }
+                else
+                    return "рублей";
+            }
+        }
+    }
+}
+
+#Практика "Два прямоугольника"
