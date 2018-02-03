@@ -1,0 +1,247 @@
+#Практика "Тестирование"
+public static void RunTests()
+{
+	NoFields();
+	OneField();
+	EmptyField();
+	MoreThanOneField();
+	
+	SeparateFieldsByOneSpace();
+	SeparateFieldsByMoreThanOneSpace();
+	
+	QuotedFieldAfterSimpleField();
+	QuotedFieldBeforeSimpleField();
+	
+	SpaceBetweenQuotes();
+	SingleQuotesInDoubleQuotes();
+	DoubleQuotesInSingleQuotes();
+	
+	NoClosingQuotationMark();
+	IgnoreBoundarySpaces();
+	SeparateWithoutSpaces();
+	
+	BackSlashMagic();
+	SingleQuotesMagic();
+	DoubleQuotesMagic();
+}
+
+public static void NoFields()
+{
+	Test(String.Empty, new string[0]);
+}
+
+public static void OneField()
+{
+	Test("0xDEADBEEF", new[] { "0xDEADBEEF" });
+}
+
+public static void EmptyField()
+{
+	Test("''", new[] { "" });
+}
+
+public static void MoreThanOneField()
+{
+	Test("i like writing tests", new[] { "i", "like", "writing", "tests" });
+}
+
+public static void SeparateFieldsByOneSpace()
+{
+	Test("separate us plz", new[] { "separate", "us", "plz" });
+}
+
+public static void SeparateFieldsByMoreThanOneSpace()
+{
+	Test("what  about    this?", new[] { "what", "about", "this?" });
+}
+
+public static void QuotedFieldAfterSimpleField()
+{
+	Test("cut 'it'", new[] { "cut", "it" });
+}
+
+public static void QuotedFieldBeforeSimpleField()
+{
+	Test("\"cut\" it", new[] { "cut", "it" });
+}
+
+public static void SpaceBetweenQuotes()
+{
+	Test("' '", new[] { " " });
+}
+
+public static void SingleQuotesInDoubleQuotes()
+{
+	Test("\"'smile plz :)'\"", new[] { "'smile plz :)'" });	
+}
+
+public static void DoubleQuotesInSingleQuotes()
+{
+	Test("'\"another  one :)\"'", new[] { "\"another  one :)\"" });
+}
+
+public static void NoClosingQuotationMark()
+{
+	Test("\"jeeeeez ", new[] { "jeeeeez " });
+}
+
+public static void IgnoreBoundarySpaces()
+{
+	Test(" <-ignore damn spaces->   ", new[] { "<-ignore", "damn", "spaces->" });
+}
+
+public static void SeparateWithoutSpaces()
+{
+	Test("i'm'too'lazy'to'put'spaces'sorry'",
+		 new[] {"i", "m", "too", "lazy", "to", "put", "spaces", "sorry"});
+}
+
+public static void BackSlashMagic()
+{
+	Test("\"\\\\\"", new[] { "\\" }); 
+}
+
+public static void SingleQuotesMagic()
+{
+	Test("\'\\\'MAGIC\\\'\'", new[] {"\'MAGIC\'"});
+}
+
+public static void DoubleQuotesMagic()
+{
+	Test("\"\\\"MAGIC\\\"\"", new[] {"\"MAGIC\""});
+}
+
+#Практика "Парсер таблиц"
+// Вставьте сюда финальное содержимое файла FieldsParserTask.cs
+using System.Collections.Generic;
+using System.Text;
+
+namespace TableParser
+{
+	public class FieldsParserTask
+	{
+		// При решении этой задаче постарайтесь избежать создания методов, длиннее 10 строк.
+		// Ниже есть метод ReadField — это подсказка. Найдите класс Token и изучите его.
+		// Подумайте как можно использовать ReadField и Token в этой задаче.
+		public static List<string> ParseLine(string line)
+        {
+            List<string> result = new List<string>();
+
+            for (int i = 0; i < line.Length;)
+            {
+                var complexField = TryReadComplexField(line, i);
+                var simpleField = TryReadSimpleField(line, i);
+                var spacesField = TryReadWhitespaces(line, i);
+                if (complexField.Value != null)
+                {
+                    result.Add(complexField.Value);
+                    i = complexField.GetIndexNextToToken();
+                }
+                else if (spacesField.Value != null)
+                    i = spacesField.GetIndexNextToToken();
+                else if (simpleField.Value != null)
+                {
+                    result.Add(simpleField.Value);
+                    i = simpleField.GetIndexNextToToken();
+                }
+            }
+            return result;
+        }
+
+        private static Token TryReadSimpleField(string line, int startIndex)
+        {
+            StringBuilder tokenBuilder = ParseSimpleField(line, startIndex);
+
+            if (tokenBuilder.Length > 0)
+            {
+                var simpleField = tokenBuilder.ToString();
+                return new Token(simpleField, startIndex, simpleField.Length);
+            }
+            else return new Token(null, startIndex, 0);
+        }
+
+        private static StringBuilder ParseSimpleField(string line, int startIndex)
+        {
+            StringBuilder tokenBuilder = new StringBuilder();
+            int i = startIndex;
+            while (i < line.Length)
+            {
+                if (line[i] == ' ' || line[i] == '\'' || line[i] == '"') break;
+                else tokenBuilder.Append(line[i]);
+                i++;
+            }
+
+            return tokenBuilder;
+        }
+
+        private static Token TryReadWhitespaces(string line, int startIndex)
+        {
+            if (line[startIndex] == ' ')
+            {
+                string spacesField = ParseWhitepacesField(line, startIndex);
+
+                return new Token(spacesField, startIndex, spacesField.Length);
+            }
+            return new Token(null, startIndex, 0);
+        }
+
+        private static string ParseWhitepacesField(string line, int startIndex)
+        {
+            int i = startIndex;
+            StringBuilder tokeBuilder = new StringBuilder();
+            while (i < line.Length)
+            {
+                if (line[i] == ' ') tokeBuilder.Append(line[i]);
+                else break;
+                i++;
+            }
+            var spacesField = tokeBuilder.ToString();
+            return spacesField;
+        }
+
+        private static Token TryReadComplexField(string line, int startIndex)
+        {
+            if (line[startIndex] == '"' || line[startIndex] == '\'')
+            {
+                StringBuilder tokenBuilder = new StringBuilder();
+                int i = startIndex + 1;
+                char typeOfQuotes = line[startIndex];
+
+                ParseComplesField(line, tokenBuilder, ref i, typeOfQuotes);
+
+                var complexField = tokenBuilder.ToString();
+
+                return new Token(complexField, startIndex, i - startIndex + 1);
+            }
+            return new Token(null, startIndex, 0);
+        }
+
+        private static void ParseComplesField(string line, StringBuilder tokenBuilder, ref int i, char typeOfQuotes)
+        {
+            int slashCount = 0;
+            while (i < line.Length)
+            {
+                if (line[i] == '\\')
+                {
+                    slashCount++;
+                    if (line[i - 1] == '\\' && slashCount % 2 == 0)
+                    {
+                        tokenBuilder.Append("\\");
+                        slashCount = 0;
+                    }
+                }
+                else if (line[i] == typeOfQuotes)
+                {
+                    if (line[i - 1] == '\\' && slashCount % 2 == 1)
+                    {
+                        tokenBuilder.Append(typeOfQuotes);
+                        slashCount = 0;
+                    } else break;
+                }
+                else tokenBuilder.Append(line[i]);
+                i++;
+            }
+        }
+
+    }
+}
