@@ -1,0 +1,89 @@
+#Четный массив
+#Напишите метод, который создает массив из count первых четных чисел больших нуля, в порядке возрастания.
+
+public static int[] GetFirstEvenNumbers(int count)
+        {
+            int[] array = new int[count];
+ 
+            for (int k = 1; k <= count; k++)
+                array[k - 1] = k * 2;
+ 
+            return array;
+ }
+ 
+ 
+#Индекс максимума   
+public static int MaxIndex(double[] array)
+{           
+            var max = double.MinValue;
+            int index = -1;
+
+            for (int i = 0; i < array.Length; i++)
+            {
+                if (max < array[i])
+                {
+                    max = array[i];
+                    index = i;
+                }
+            }
+            return index;
+}
+        
+  
+  
+#Подсчет
+#Тренировки продолжаются.
+#На этот раз вы с Васей наперегонки решаете одну задачу — найти количество вхождений заданного числа в массив чисел.  
+  
+ public static int GetElementCount(int[] items, int itemToFind)
+{   int amount=0;
+	for (int i = 0; i < items.Length; i++)
+{
+    if (items[i] == itemToFind)
+    amount++;
+		
+}
+ return amount;
+}    
+
+#Поиск массива в массиве
+
+static bool ContainsAtIndex(int[] array, int[] subArray, int index)
+{
+    for (int j = 0; j < subArray.Length; j++)
+    {
+        if (array[index + j] != subArray[j])
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+#Карты Таро
+ private static string GetSuit(Suits suit)
+{
+            return suit == Suits.Wands ? "жезлов" :
+            suit == Suits.Coins ? "монет" :
+            suit == Suits.Cups ? "кубков":
+            "мечей";
+}
+
+#Null или не Null?
+public static bool CheckFirstElement(int[] array)
+{
+      return array != null && array.Length != 0 && array[0] == 0;
+}
+
+#Возвести массив в степень
+
+public static int[] GetPoweredArray(int[] arr, int power)
+{   
+int[] result = new int[arr.Length];
+for (int i = 0; i < arr.Length; i++)
+{
+    result[i] = (int)(Math.Pow(arr[i], power));
+}
+	return result;
+}
+
