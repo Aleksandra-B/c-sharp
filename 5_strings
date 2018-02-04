@@ -1,3 +1,43 @@
+#Шифр незнакомки	
+private static string DecodeMessage(string[] lines)
+{
+	string decodedMessage = "";
+	for(int i = lines.Length - 1; i >= 0; i--) {
+		string word = lines[i];
+		string[] words = word.Split(' ');
+		
+		for(int k = words.Length - 1; k >= 0; k--) 
+		{
+			string res = words[k];
+			if((res.Length != 0) && (char.IsUpper(res[0]))) 
+			{
+				decodedMessage = decodedMessage + res + " ";
+			}
+		}
+	}
+	return decodedMessage;
+}
+
+#Снова незнакомка 
+private static string ApplyCommands(string[] commands)
+{
+    var res = new StringBuilder();
+    foreach (var i in commands)
+    {
+        string keyWord = i.Substring(0, i.IndexOf(' '));
+        string l = i.Remove(0, keyWord.Length + 1);
+        if (keyWord == "push") res.Append(l);
+        else if (keyWord == "pop")
+        {
+            int c = int.Parse(l);
+            res.Remove(res.Length - c, c);
+        }
+    }
+    return res.ToString();
+}
+
+
+
 #Полезные знакомства
 private static Dictionary<string, List<string>> OptimizeContacts(List<string> contacts)
 {
