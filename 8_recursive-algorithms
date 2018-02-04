@@ -1,4 +1,34 @@
- 1. Что делает функция F? 1 из 1 балла
+#Исправить рекурсию
+public static void WriteReversed(char[] items, int startIndex = 0)
+{
+	if (items.Length != 0)
+    {
+		if (startIndex != items.Length - 1)
+        {
+			WriteReversed(items, startIndex + 1);
+        }
+        Console.Write(items[startIndex]);
+    }
+}
+
+#Перебор паролей	
+static void MakeSubsets(char[] subset, int position = 0)
+		{
+			if (position == subset.Length)
+			{
+				Console.WriteLine(new string(subset));
+				return;
+			}
+			subset[position] = 'a';
+			MakeSubsets(subset, position + 1);
+			subset[position] = 'b';
+			MakeSubsets(subset, position + 1);
+			subset[position] = 'c';
+			MakeSubsets(subset, position + 1);
+		}
+
+
+1. Что делает функция F? 1 из 1 балла
 Вычисляет значение x^yx
 При некоторых значениях аргументов будет бесконечная рекурсия
 Вычисляет НОД x и y по алгоритму Евклида
